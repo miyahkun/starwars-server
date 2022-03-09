@@ -406,12 +406,12 @@ function getStarship(id: Scalars['ID']) {
   return starshipData[id];
 }
 
-function toCursor(str: string) {
+function toCursor(str: number) {
   // @ts-ignore
   return Buffer('cursor' + str).toString('base64');
 }
 
-function fromCursor(str: string) {
+function fromCursor(str: number) {
   // @ts-ignore
   return Buffer.from(str, 'base64').toString().slice(6);
 }
@@ -517,7 +517,10 @@ const resolvers = {
   },
   Droid: {
     // @ts-ignore
-    friends: ({ friends }) => friends.map(getCharacter),
+    friends: ({ friends }) =>
+      friends.map((id: string) => {
+        return getCharacter(id);
+      }),
     // @ts-ignore
     friendsConnection: ({ friends }, { first, after }) => {
       first = first || friends.length;
