@@ -13,12 +13,14 @@ import {
   GraphQLEnumType,
   GraphQLList,
   GraphQLNonNull,
-  GraphQLString
+  GraphQLString,
 } from 'graphql';
 
 import { makeExecutableSchema } from 'graphql-tools';
 
-import { PubSub, SubscriptionManager, withFilter } from 'graphql-subscriptions';
+import { PubSub, withFilter } from 'graphql-subscriptions';
+
+import { Character, Droid, Episode, Scalars, Starship } from 'types';
 
 const pubsub = new PubSub();
 const ADDED_REVIEW_TOPIC = 'new_review';
@@ -231,37 +233,37 @@ const humans = [
   {
     id: '1000',
     name: 'Luke Skywalker',
-    friends: [ '1002', '1003', '2000', '2001' ],
-    appearsIn: [ 'NEWHOPE', 'EMPIRE', 'JEDI' ],
+    friends: ['1002', '1003', '2000', '2001'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     homePlanet: 'Tatooine',
     height: 1.72,
     mass: 77,
-    starships: [ '3001', '3003' ],
+    starships: ['3001', '3003'],
   },
   {
     id: '1001',
     name: 'Darth Vader',
-    friends: [ '1004' ],
-    appearsIn: [ 'NEWHOPE', 'EMPIRE', 'JEDI' ],
+    friends: ['1004'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     homePlanet: 'Tatooine',
     height: 2.02,
     mass: 136,
-    starships: [ '3002' ],
+    starships: ['3002'],
   },
   {
     id: '1002',
     name: 'Han Solo',
-    friends: [ '1000', '1003', '2001' ],
-    appearsIn: [ 'NEWHOPE', 'EMPIRE', 'JEDI' ],
+    friends: ['1000', '1003', '2001'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     height: 1.8,
     mass: 80,
-    starships: [ '3000', '3003' ],
+    starships: ['3000', '3003'],
   },
   {
     id: '1003',
     name: 'Leia Organa',
-    friends: [ '1000', '1002', '2000', '2001' ],
-    appearsIn: [ 'NEWHOPE', 'EMPIRE', 'JEDI' ],
+    friends: ['1000', '1002', '2000', '2001'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     homePlanet: 'Alderaan',
     height: 1.5,
     mass: 49,
@@ -270,15 +272,19 @@ const humans = [
   {
     id: '1004',
     name: 'Wilhuff Tarkin',
-    friends: [ '1001' ],
-    appearsIn: [ 'NEWHOPE' ],
+    friends: ['1001'],
+    appearsIn: ['NEWHOPE'],
     height: 1.8,
     mass: null,
     starships: [],
   },
 ];
 
-const humanData = {};
+type IHumanData = {
+  [key: string]: Starship;
+};
+
+const humanData: IHumanData = {};
 humans.forEach((ship) => {
   humanData[ship.id] = ship;
 });
@@ -287,20 +293,24 @@ const droids = [
   {
     id: '2000',
     name: 'C-3PO',
-    friends: [ '1000', '1002', '1003', '2001' ],
-    appearsIn: [ 'NEWHOPE', 'EMPIRE', 'JEDI' ],
+    friends: ['1000', '1002', '1003', '2001'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     primaryFunction: 'Protocol',
   },
   {
     id: '2001',
     name: 'R2-D2',
-    friends: [ '1000', '1002', '1003' ],
-    appearsIn: [ 'NEWHOPE', 'EMPIRE', 'JEDI' ],
+    friends: ['1000', '1002', '1003'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     primaryFunction: 'Astromech',
   },
 ];
 
-const droidData = {};
+type IDroidData = {
+  [key: string]: Starship;
+};
+
+const droidData: IDroidData = {};
 droids.forEach((ship) => {
   droidData[ship.id] = ship;
 });
@@ -328,22 +338,25 @@ const starships = [
   },
 ];
 
-const starshipData = {};
+type IStarshipData = {
+  [key: string]: Starship;
+};
+
+const starshipData: IStarshipData = {};
 starships.forEach((ship) => {
   starshipData[ship.id] = ship;
 });
 
 var reviews = {
-  'NEWHOPE': [],
-  'EMPIRE': [],
-  'JEDI': []
+  NEWHOPE: [],
+  EMPIRE: [],
+  JEDI: [],
 };
-
 
 /**
  * Helper function to get a character by ID.
  */
-function getCharacter(id) {
+function getCharacter(id: Scalars['ID']) {
   // Returning a promise just to illustrate GraphQL.js's support.
   return Promise.resolve(humanData[id] || droidData[id]);
 }
@@ -351,14 +364,15 @@ function getCharacter(id) {
 /**
  * Allows us to query for a character's friends.
  */
-function getFriends(character) {
-  return character.friends.map(id => getCharacter(id));
+function getFriends(character: Character) {
+  // @ts-ignore
+  return character.friends?.map((id) => getCharacter(id));
 }
 
 /**
  * Allows us to fetch the undisputed hero of the Star Wars trilogy, R2-D2.
  */
-function getHero(episode) {
+function getHero(episode: Episode) {
   if (episode === 'EMPIRE') {
     // Luke is the hero of Episode V.
     return humanData['1000'];
@@ -370,87 +384,99 @@ function getHero(episode) {
 /**
  * Allows us to fetch the ephemeral reviews for each episode
  */
-function getReviews(episode) {
+function getReviews(episode: Episode) {
   return reviews[episode];
 }
 
 /**
  * Allows us to query for the human with the given id.
  */
-function getHuman(id) {
+function getHuman(id: Scalars['ID']) {
   return humanData[id];
 }
 
 /**
  * Allows us to query for the droid with the given id.
  */
-function getDroid(id) {
+function getDroid(id: Scalars['ID']) {
   return droidData[id];
 }
 
-function getStarship(id) {
+function getStarship(id: Scalars['ID']) {
   return starshipData[id];
 }
 
-function toCursor(str) {
-  return Buffer("cursor" + str).toString('base64');
+function toCursor(str: string) {
+  // @ts-ignore
+  return Buffer('cursor' + str).toString('base64');
 }
 
-function fromCursor(str) {
+function fromCursor(str: string) {
+  // @ts-ignore
   return Buffer.from(str, 'base64').toString().slice(6);
 }
 
 const resolvers = {
   Query: {
+    // @ts-ignore
     hero: (root, { episode }) => getHero(episode),
+    // @ts-ignore
     character: (root, { id }) => getCharacter(id),
+    // @ts-ignore
     human: (root, { id }) => getHuman(id),
+    // @ts-ignore
     droid: (root, { id }) => getDroid(id),
+    // @ts-ignore
     starship: (root, { id }) => getStarship(id),
+    // @ts-ignore
     reviews: (root, { episode }) => getReviews(episode),
+    // @ts-ignore
     search: (root, { text }) => {
       const re = new RegExp(text, 'i');
 
-      const allData = [
-        ...humans,
-        ...droids,
-        ...starships,
-      ];
+      const allData = [...humans, ...droids, ...starships];
 
       return allData.filter((obj) => re.test(obj.name));
     },
   },
   Mutation: {
-    createReview: (root, { episode, review }) => {
+    // @ts-ignore
+    createReview: (_, { episode, review }) => {
+      // @ts-ignore
       reviews[episode].push(review);
       review.episode = episode;
-      pubsub.publish(ADDED_REVIEW_TOPIC, {reviewAdded: review});
+      pubsub.publish(ADDED_REVIEW_TOPIC, { reviewAdded: review });
       return review;
     },
   },
   Subscription: {
     reviewAdded: {
-        subscribe: withFilter(
-            () => pubsub.asyncIterator(ADDED_REVIEW_TOPIC),
-            (payload, variables) => {
-                return (payload !== undefined) && 
-                ((variables.episode === null) || (payload.reviewAdded.episode === variables.episode));
-            }
-        ),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(ADDED_REVIEW_TOPIC),
+        (payload, variables) => {
+          return (
+            payload !== undefined &&
+            (variables.episode === null ||
+              payload.reviewAdded.episode === variables.episode)
+          );
+        }
+      ),
     },
   },
   Character: {
-    __resolveType(data, context, info){
-      if(humanData[data.id]){
+    // @ts-ignore
+    __resolveType(data, context, info) {
+      if (humanData[data.id]) {
         return info.schema.getType('Human');
       }
-      if(droidData[data.id]){
+      if (droidData[data.id]) {
         return info.schema.getType('Droid');
       }
       return null;
     },
   },
   Human: {
+    // @ts-ignore
     height: ({ height }, { unit }) => {
       if (unit === 'FOOT') {
         return height * 3.28084;
@@ -458,14 +484,20 @@ const resolvers = {
 
       return height;
     },
+    // @ts-ignore
     friends: ({ friends }) => friends.map(getCharacter),
+    // @ts-ignore
     friendsConnection: ({ friends }, { first, after }) => {
       first = first || friends.length;
       after = after ? parseInt(fromCursor(after), 10) : 0;
-      const edges = friends.map((friend, i) => ({
-        cursor: toCursor(i+1),
-        node: getCharacter(friend)
-      })).slice(after, first + after);
+      const edges = friends
+        // @ts-ignore
+        .map((friend, i) => ({
+          cursor: toCursor(i + 1),
+          node: getCharacter(friend),
+        }))
+        .slice(after, first + after);
+      // @ts-ignore
       const slicedFriends = edges.map(({ node }) => node);
       return {
         edges,
@@ -473,23 +505,31 @@ const resolvers = {
         pageInfo: {
           startCursor: edges.length > 0 ? edges[0].cursor : null,
           hasNextPage: first + after < friends.length,
-          endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null
+          endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null,
         },
-        totalCount: friends.length
+        totalCount: friends.length,
       };
     },
+    // @ts-ignore
     starships: ({ starships }) => starships.map(getStarship),
+    // @ts-ignore
     appearsIn: ({ appearsIn }) => appearsIn,
   },
   Droid: {
+    // @ts-ignore
     friends: ({ friends }) => friends.map(getCharacter),
+    // @ts-ignore
     friendsConnection: ({ friends }, { first, after }) => {
       first = first || friends.length;
       after = after ? parseInt(fromCursor(after), 10) : 0;
-      const edges = friends.map((friend, i) => ({
-        cursor: toCursor(i+1),
-        node: getCharacter(friend)
-      })).slice(after, first + after);
+      const edges = friends
+        // @ts-ignore
+        .map((friend, i) => ({
+          cursor: toCursor(i + 1),
+          node: getCharacter(friend),
+        }))
+        .slice(after, first + after);
+      // @ts-ignore
       const slicedFriends = edges.map(({ node }) => node);
       return {
         edges,
@@ -497,24 +537,32 @@ const resolvers = {
         pageInfo: {
           startCursor: edges.length > 0 ? edges[0].cursor : null,
           hasNextPage: first + after < friends.length,
-          endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null
+          endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null,
         },
-        totalCount: friends.length
+        totalCount: friends.length,
       };
     },
+    // @ts-ignore
     appearsIn: ({ appearsIn }) => appearsIn,
   },
   FriendsConnection: {
+    // @ts-ignore
     edges: ({ edges }) => edges,
+    // @ts-ignore
     friends: ({ friends }) => friends,
+    // @ts-ignore
     pageInfo: ({ pageInfo }) => pageInfo,
+    // @ts-ignore
     totalCount: ({ totalCount }) => totalCount,
   },
   FriendsEdge: {
+    // @ts-ignore
     node: ({ node }) => node,
+    // @ts-ignore
     cursor: ({ cursor }) => cursor,
   },
   Starship: {
+    // @ts-ignore
     length: ({ length }, { unit }) => {
       if (unit === 'FOOT') {
         return length * 3.28084;
@@ -523,24 +571,28 @@ const resolvers = {
       return length;
     },
     coordinates: () => {
-      return [[1, 2], [3, 4]];
-    }
+      return [
+        [1, 2],
+        [3, 4],
+      ];
+    },
   },
   SearchResult: {
-    __resolveType(data, context, info){
-      if(humanData[data.id]){
+    // @ts-ignore
+    __resolveType(data, context, info) {
+      if (humanData[data.id]) {
         return info.schema.getType('Human');
       }
-      if(droidData[data.id]){
+      if (droidData[data.id]) {
         return info.schema.getType('Droid');
       }
-      if(starshipData[data.id]){
+      if (starshipData[data.id]) {
         return info.schema.getType('Starship');
       }
       return null;
     },
   },
-}
+};
 
 /**
  * Finally, we construct our schema (whose starting query type is the query
@@ -548,5 +600,5 @@ const resolvers = {
  */
 export const StarWarsSchema = makeExecutableSchema({
   typeDefs: [schemaString],
-  resolvers
+  resolvers,
 });
