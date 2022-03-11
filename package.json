@@ -25,10 +25,7 @@
   },
   "homepage": "https://github.com/apollographql/starwars-server#readme",
   "dependencies": {
-    "apollo-server-express": "^3.6.3",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "apollo-server": "^3.6.4",
     "graphql": "^15.3.0",
     "graphql-subscriptions": "=1.0.0",
     "graphql-tools": "^4.0.8",
