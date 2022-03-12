@@ -25,6 +25,9 @@
   },
   "homepage": "https://github.com/apollographql/starwars-server#readme",
   "dependencies": {
+    "@graphql-tools/graphql-file-loader": "^7.3.4",
+    "@graphql-tools/load": "^7.5.2",
+    "@graphql-tools/schema": "^8.3.2",
     "apollo-server": "^3.6.4",
     "graphql": "^15.3.0",
     "graphql-subscriptions": "=1.0.0",
