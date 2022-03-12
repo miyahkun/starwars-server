@@ -13,16 +13,17 @@
     "isolatedModules": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
     "lib": [
       "esnext",
       "dom",
       "dom.iterable",
     ]
   },
-  "include": [
-    "server.js",
-    "data/**/*.ts"
-  ],
   "exclude": [
     "node_modules"
   ]

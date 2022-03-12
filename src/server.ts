@@ -1,6 +1,6 @@
 import { ApolloServer } from 'apollo-server';
 
-import { schema } from './data/schema';
+import { schema } from '@/src/data/schema';
 
 const PORT = 8081;
 
